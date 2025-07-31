@@ -2,6 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
+
 import { connectDb } from "./lib/lib.js";
 import { authRoutes } from "./routes/authRoute.js";
 import { taskRoutes } from "./routes/taskRoute.js";
@@ -16,14 +19,16 @@ if (!MONGO_URI) {
   console.error("MONGO_URI is required");
   process.exit(1);
 }
-
 if (!process.env.JWT_SECRET) {
   console.error("JWT_SECRET is required");
   process.exit(1);
 }
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+// Connect DB
 connectDb(MONGO_URI)
   .then(() => {
     console.log("Connected to MongoDB");
@@ -45,27 +50,65 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", isAuth, taskRoutes);
 app.use("/api/timelogs", isAuth, timeLogRoutes);
 
-app.get("/", (req, res) => {
-  res.send("Welcome to the Task Tracker API");
+// Serve static files from React
+app.use(express.static(path.resolve(__dirname, "../client/dist")));
+
+// Handle client-side routing
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.resolve(__dirname, "../client/dist/index.html"));
 });
 
-app
-  .listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  })
-  .on("error", (err) => {
-    if (err.code === "EADDRINUSE") {
-      console.error(
-        `Port ${PORT} is already in use. Please try a different port.`
-      );
-      process.exit(1);
-    } else {
-      console.error("Server error:", err);
-      process.exit(1);
-    }
-  });
+// Debug all registered routes (add this right before app.listen())
+function printRoutes() {
+  console.log("\n=== Registered Routes ===");
+
+  // Method 1: Using express-list-endpoints (recommended)
+  try {
+    const listEndpoints = require("express-list-endpoints");
+    console.log("Method 1: express-list-endpoints");
+    console.log(listEndpoints(app));
+  } catch (e) {
+    console.log("express-list-endpoints not available");
+  }
+
+  // Method 2: Manual inspection
+  console.log("\nMethod 2: Manual inspection");
+  if (app._router?.stack) {
+    app._router.stack.forEach((layer) => {
+      if (layer.route) {
+        const methods = Object.keys(layer.route.methods)
+          .join(", ")
+          .toUpperCase();
+        console.log(`[${methods}] ${layer.route.path}`);
+      } else if (layer.name === "router" && layer.handle?.stack) {
+        const prefix = layer.regexp.source
+          .replace("^\\", "")
+          .replace("(?=\\/|$)", "")
+          .replace("\\/?(?=\\/|$)", "");
+
+        layer.handle.stack.forEach((sublayer) => {
+          if (sublayer.route) {
+            const methods = Object.keys(sublayer.route.methods)
+              .join(", ")
+              .toUpperCase();
+            console.log(`[${methods}] /${prefix}${sublayer.route.path}`);
+          }
+        });
+      }
+    });
+  }
+}
+
+// Print routes after they're all registered
+setImmediate(printRoutes);
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+  printRoutes(); // Also print routes after server starts for good measure
+});

@@ -9,30 +9,36 @@ A full-stack task tracking application with time logging capabilities, built wit
 - **Time Tracking**: Start/stop timers for individual tasks
 - **Daily Summary**: View daily time tracking statistics
 - **Responsive Design**: Modern UI that works on all devices
+- **AI Integration**: Google GenAI integration for enhanced functionality
 
 ## Tech Stack
 
 ### Backend
 
-- Node.js with Express
-- MongoDB with Mongoose
-- JWT for authentication
-- bcrypt for password hashing
-- CORS for cross-origin requests
+- Node.js with Express 5.1.0
+- MongoDB with Mongoose 8.16.5
+- JWT (jsonwebtoken 9.0.2) for authentication
+- bcrypt 6.0.0 for password hashing
+- CORS 2.8.5 for cross-origin requests
+- Cookie Parser for handling cookies
+- Google GenAI integration
+- Nodemon for development
 
 ### Frontend
 
-- React 19 with Vite
-- Redux Toolkit for state management
-- React Router for navigation
-- Axios for API calls
-- Tailwind CSS for styling
+- React 19.1.0 with Vite 4.5.1
+- Redux Toolkit 2.8.2 for state management
+- React Router DOM 7.7.1 for navigation
+- Axios 1.11.0 for API calls
+- Tailwind CSS 4.1.11 for styling
+- ESLint for code linting
 
 ## Prerequisites
 
 - Node.js (v18 or higher)
 - MongoDB (local installation or MongoDB Atlas)
-- npm or yarn
+- npm or yarn package manager
+- Git (for cloning the repository)
 
 ## Installation
 
@@ -152,19 +158,65 @@ task_tracker/
 │   │   ├── api/           # API configuration
 │   │   ├── app/           # Redux store
 │   │   ├── components/    # React components
+│   │   │   ├── AddTaskForm.jsx
+│   │   │   ├── DailySummary.jsx
+│   │   │   ├── EditTaskForm.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   ├── TaskList.jsx
+│   │   │   └── Timer.jsx
 │   │   ├── features/      # Redux slices
 │   │   ├── pages/         # Page components
-│   │   └── main.jsx       # App entry point
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── NotFound.jsx
+│   │   │   └── Signup.jsx
+│   │   ├── App.jsx        # Main App component
+│   │   ├── main.jsx       # App entry point
+│   │   └── index.css      # Global styles
+│   ├── public/            # Static assets
+│   ├── dist/              # Build output
 │   └── package.json
 ├── server/                 # Node.js backend
 │   ├── controllers/       # Route controllers
+│   │   ├── authController.js
+│   │   ├── taskController.js
+│   │   └── timeLogController.js
 │   ├── middlewares/       # Express middlewares
+│   │   └── isAuth.js
 │   ├── routes/            # API routes
+│   │   ├── authRoute.js
+│   │   ├── taskRoute.js
+│   │   └── timeLogRoute.js
 │   ├── schemas/           # MongoDB schemas
+│   │   ├── task.js
+│   │   ├── timeLog.js
+│   │   └── user.js
 │   ├── lib/               # Database connection
-│   └── app.js            # Server entry point
+│   │   └── lib.js
+│   ├── utils/             # Utility functions
+│   │   └── utility.js
+│   ├── app.js            # Server entry point
+│   └── package.json
 └── README.md
 ```
+
+## Key Components
+
+### Frontend Components
+
+- **ProtectedRoute**: Handles authentication-based route protection
+- **AddTaskForm**: Form component for creating new tasks
+- **EditTaskForm**: Form component for updating existing tasks
+- **TaskList**: Displays all tasks with status and actions
+- **Timer**: Real-time timer component for time tracking
+- **DailySummary**: Shows daily productivity statistics
+
+### Backend Components
+
+- **Authentication Controller**: Handles user registration, login, and JWT management
+- **Task Controller**: Manages CRUD operations for tasks
+- **Time Log Controller**: Handles time tracking functionality
+- **Auth Middleware**: Protects routes requiring authentication
 
 ## Usage
 
@@ -204,17 +256,62 @@ task_tracker/
 - Automatic token refresh
 - Secure password hashing
 
+## Development Scripts
+
+### Server Scripts
+
+```bash
+npm start          # Start production server
+npm run dev        # Start development server with nodemon
+```
+
+### Client Scripts
+
+```bash
+npm run dev        # Start development server
+npm run build      # Build for production
+npm run preview    # Preview production build
+npm run lint       # Run ESLint
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **MongoDB Connection Error**
+
+   - Ensure MongoDB is running
+   - Check the MONGO_URI in server/.env
+   - Verify network connectivity for MongoDB Atlas
+
+2. **CORS Issues**
+
+   - Verify CLIENT_URL in server/.env matches your frontend URL
+   - Check that both servers are running on correct ports
+
+3. **Authentication Issues**
+
+   - Clear browser cookies and localStorage
+   - Verify JWT_SECRET is set in server/.env
+   - Check token expiration
+
+4. **Build Issues**
+   - Delete node_modules and package-lock.json
+   - Run `npm install` again
+   - Check Node.js version compatibility
+
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+4. Commit your changes (`git commit -m 'Add some amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the ISC License - see the package.json files for details.
 
 ## Support
 
