@@ -4,7 +4,7 @@
   "description": "A full-stack task tracking application with time logging capabilities, built with React, Node.js, Express, and MongoDB.",
   "main": "index.js",
   "scripts": {
-    "build": "npm install --prefix client && npm install --prefix server && npm run build --prefix client",
+    "build": "npm install --prefix client --include=dev && npm install --prefix server && npm run build --prefix client",
     "start": "npm run start --prefix server"
   },
   "keywords": [],
