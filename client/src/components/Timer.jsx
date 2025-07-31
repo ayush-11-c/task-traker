@@ -7,8 +7,17 @@ import { StartTime, StopTimeLog } from "../features/timeLogs/timeLogSlice";
 const Timer = ({ taskId }) => {
   const dispatch = useDispatch();
   const { activeTask } = useSelector((state) => state.tasks);
+  const { items: timeLogs, loading } = useSelector((state) => state.timeLogs);
   const [elapsed, setElapsed] = useState(0);
   const [isActive, setIsActive] = useState(false);
+
+  // Check if this task has an active time log
+  useEffect(() => {
+    const activeLog = timeLogs.find(
+      (log) => log.task?.id === taskId && !log.endTime
+    );
+    setIsActive(!!activeLog);
+  }, [timeLogs, taskId]);
 
   useEffect(() => {
     let interval;
@@ -22,7 +31,7 @@ const Timer = ({ taskId }) => {
 
   const handleStart = async () => {
     try {
-      await dispatch(StartTime({ taskId })).unwrap();
+      await dispatch(StartTime(taskId)).unwrap();
       dispatch(setActiveTask(taskId));
       setIsActive(true);
       setElapsed(0);
@@ -33,7 +42,7 @@ const Timer = ({ taskId }) => {
 
   const handleStop = async () => {
     try {
-      await dispatch(StopTimeLog({ taskId })).unwrap();
+      await dispatch(StopTimeLog(taskId)).unwrap();
       dispatch(setActiveTask(null));
       setIsActive(false);
     } catch (err) {
@@ -56,12 +65,14 @@ const Timer = ({ taskId }) => {
       {!isActive ? (
         <button
           onClick={handleStart}
-          disabled={activeTask && activeTask !== taskId}
+          disabled={(activeTask && activeTask !== taskId) || loading}
         >
-          Start
+          {loading ? "Loading..." : "Start"}
         </button>
       ) : (
-        <button onClick={handleStop}>Stop</button>
+        <button onClick={handleStop} disabled={loading}>
+          {loading ? "Loading..." : "Stop"}
+        </button>
       )}
     </div>
   );

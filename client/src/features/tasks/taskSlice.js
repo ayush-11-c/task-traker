@@ -1,4 +1,3 @@
-// features/tasks/taskSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../../api/axios";
 
@@ -6,7 +5,7 @@ export const fetchTasks = createAsyncThunk(
   "tasks/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("/api/tasks");
+      const response = await axios.get("/api/tasks/getTasks");
       return response.data;
     } catch (err) {
       return rejectWithValue(
@@ -20,8 +19,8 @@ export const createTask = createAsyncThunk(
   "tasks/create",
   async (taskData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/api/tasks", taskData);
-      return response.data;
+      const response = await axios.post("/api/tasks/create", taskData);
+      return response.data.task;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to create task"
@@ -30,17 +29,15 @@ export const createTask = createAsyncThunk(
   }
 );
 
-export const updateTaskStatus = createAsyncThunk(
-  "tasks/updateStatus",
-  async ({ taskId, status }, { rejectWithValue }) => {
+export const updateTask = createAsyncThunk(
+  "tasks/update",
+  async ({ taskId, taskData }, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(`/api/tasks/${taskId}/status`, {
-        status,
-      });
-      return response.data;
+      const response = await axios.put(`/api/tasks/update/${taskId}`, taskData);
+      return response.data.task;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || "Failed to update task status"
+        err.response?.data?.message || "Failed to update task"
       );
     }
   }
@@ -50,7 +47,7 @@ export const deleteTask = createAsyncThunk(
   "tasks/delete",
   async (taskId, { rejectWithValue }) => {
     try {
-      await axios.delete(`/api/tasks/${taskId}`);
+      await axios.delete(`/api/tasks/delete/${taskId}`);
       return taskId;
     } catch (err) {
       return rejectWithValue(
@@ -66,7 +63,7 @@ const taskSlice = createSlice({
     items: [],
     loading: false,
     error: null,
-    activeTask: null, // For time tracking
+    activeTask: null,
   },
   reducers: {
     setActiveTask: (state, action) => {
@@ -78,7 +75,7 @@ const taskSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Tasks
+
       .addCase(fetchTasks.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -92,7 +89,6 @@ const taskSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Create Task
       .addCase(createTask.pending, (state) => {
         state.error = null;
       })
@@ -103,19 +99,17 @@ const taskSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Update Task Status
-      .addCase(updateTaskStatus.fulfilled, (state, action) => {
+      .addCase(updateTask.fulfilled, (state, action) => {
         const index = state.items.findIndex(
-          (task) => task._id === action.payload._id
+          (task) => task.id === action.payload.id
         );
         if (index !== -1) {
           state.items[index] = action.payload;
         }
       })
 
-      // Delete Task
       .addCase(deleteTask.fulfilled, (state, action) => {
-        state.items = state.items.filter((task) => task._id !== action.payload);
+        state.items = state.items.filter((task) => task.id !== action.payload);
       });
   },
 });

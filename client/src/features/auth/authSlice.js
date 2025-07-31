@@ -6,9 +6,9 @@ export const fetchMe = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await axios.get("/api/auth/me");
+      console.log("Fetched user data:", res.data.user);
       return res.data.user;
     } catch (err) {
-      // Clear any invalid tokens
       if (err.response?.status === 401) {
         try {
           await axios.post("/api/auth/logout");
@@ -51,7 +51,7 @@ const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
-    status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
+    status: "idle",
     error: null,
     isAuthenticated: false,
   },
@@ -62,7 +62,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Login cases
+
       .addCase(loginUser.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -78,7 +78,6 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
       })
 
-      // FetchMe cases
       .addCase(fetchMe.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -95,7 +94,6 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Logout cases
       .addCase(logout.pending, (state) => {
         state.status = "loading";
       })

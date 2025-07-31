@@ -1,7 +1,7 @@
 // components/DailySummary.jsx
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTimeLogs } from "../features/timeLogs/timeLogSlice";
+import { fetchDailySummary } from "../features/timeLogs/timeLogSlice";
 
 const DailySummary = () => {
   const dispatch = useDispatch();
@@ -11,11 +11,11 @@ const DailySummary = () => {
   const { items: tasks } = useSelector((state) => state.tasks);
 
   useEffect(() => {
-    dispatch(fetchTimeLogs());
+    dispatch(fetchDailySummary());
   }, [dispatch]);
 
-  if (loading) return <div>Loading summary...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <div className="loading">Loading summary...</div>;
+  if (error) return <div className="error">Error: {error}</div>;
 
   return (
     <div className="daily-summary">
@@ -31,14 +31,14 @@ const DailySummary = () => {
             </p>
           </div>
           <div className="task-progress">
-            {tasks.map((task) => (
-              <div key={task._id} className="task-progress-item">
-                <span>{task.title}</span>
-                <span>
-                  {formatSeconds(todaySummary.taskTimes[task._id] || 0)}
-                </span>
-              </div>
-            ))}
+            {Object.entries(todaySummary.tasks || {}).map(
+              ([taskId, taskData]) => (
+                <div key={taskId} className="task-progress-item">
+                  <span>{taskData.title}</span>
+                  <span>{formatSeconds(taskData.totalTime || 0)}</span>
+                </div>
+              )
+            )}
           </div>
         </>
       ) : (

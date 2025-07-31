@@ -44,6 +44,20 @@ export const fetchTimeLogs = createAsyncThunk(
   }
 );
 
+export const fetchDailySummary = createAsyncThunk(
+  "timeLogs/fetchDailySummary",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get("/api/timelogs/daily");
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch daily summary"
+      );
+    }
+  }
+);
+
 const timeLogSlice = createSlice({
   name: "timeLogs",
   initialState: {
@@ -60,18 +74,36 @@ const timeLogSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Start Time
+      .addCase(StartTime.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(StartTime.fulfilled, (state, action) => {
+        state.loading = false;
         state.items.push(action.payload);
+      })
+      .addCase(StartTime.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
       // Stop Time
+      .addCase(StopTimeLog.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(StopTimeLog.fulfilled, (state, action) => {
+        state.loading = false;
         const index = state.items.findIndex(
-          (log) => log._id === action.payload._id
+          (log) => log.id === action.payload.log.id
         );
         if (index !== -1) {
-          state.items[index] = action.payload;
+          state.items[index] = action.payload.log;
         }
+      })
+      .addCase(StopTimeLog.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
 
       // Fetch Time Logs
@@ -85,6 +117,20 @@ const timeLogSlice = createSlice({
         state.todaySummary = action.payload.summary;
       })
       .addCase(fetchTimeLogs.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Fetch Daily Summary
+      .addCase(fetchDailySummary.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDailySummary.fulfilled, (state, action) => {
+        state.loading = false;
+        state.todaySummary = action.payload.summary;
+      })
+      .addCase(fetchDailySummary.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import useLogin from "../features/auth/useLogin";
 
 const Login = () => {
@@ -53,6 +53,15 @@ const Login = () => {
         <button type="submit" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Login"}
         </button>
+        <p style={{ textAlign: "center", marginTop: "1rem", color: "white" }}>
+          Don't have an account?{" "}
+          <Link
+            to="/signup"
+            style={{ color: "black", textDecoration: "underline" }}
+          >
+            Sign up here
+          </Link>
+        </p>
       </form>
     </div>
   );

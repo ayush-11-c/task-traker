@@ -10,7 +10,7 @@ const app = express.Router();
 
 app.post("/signup", SignUp);
 app.post("/login", login);
-app.get("/logout", logout);
+app.post("/logout", logout);
 app.get("/me", FetchMe);
 
 export { app as authRoutes };
