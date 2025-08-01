@@ -9,7 +9,8 @@ A full-stack task tracking application with time logging capabilities, built wit
 - **Time Tracking**: Start/stop timers for individual tasks
 - **Daily Summary**: View daily time tracking statistics
 - **Responsive Design**: Modern UI that works on all devices
-- **AI Integration**: Google GenAI integration for enhanced functionality
+- **AI Integration**: Google GenAI integration for enhanced functionality make title and description professional
+
 
 ## Tech Stack
 
